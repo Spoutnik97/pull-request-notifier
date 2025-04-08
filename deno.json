@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  },
+  "imports": {
+    "@slack/web-api": "npm:@slack/web-api@^7.9.1",
+    "@std/assert": "jsr:@std/assert@1"
+  }
+}
