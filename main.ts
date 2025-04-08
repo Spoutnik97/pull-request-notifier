@@ -6,9 +6,9 @@ const slack = new WebClient(SLACK_TOKEN);
 
 const loginMap = new Map<string, string>();
 loginMap.set("karlmorisset", "U0751C4S43G");
-loginMap.set("EtienneCmb ", "U08281SGPND");
-loginMap.set("Spoutnik97 ", "U051W1F01DL");
-loginMap.set("MorganPeju ", "U070BL26K1P");
+loginMap.set("EtienneCmb", "U08281SGPND");
+loginMap.set("Spoutnik97", "U051W1F01DL");
+loginMap.set("MorganPeju", "U070BL26K1P");
 
 async function handleWebhook(request: Request) {
   try {
