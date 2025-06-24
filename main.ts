@@ -32,33 +32,31 @@ async function handleWebhook(request: Request) {
       ? "❌"
       : "💭";
 
-    const reviewer: string = body?.requested_reviewer?.login;
-
+    const requestReviewer: string = body?.requested_reviewer?.login;
+    const author: string = body?.pull_request?.user?.login;
+    const reviewer: string = body?.review?.user?.login;
+    
+    const requestedReviewerTag = `<@${loginMap.get(requestReviewer)}>`;
+    const authorTag = `<@${loginMap.get(author)}>`;
+    
     switch (event) {
       case "pull_request":
         if (body.action === "opened") {
-          const opener = body.pull_request.user.login;
-          message = `🆕 New Pull Request opened by <@${
-            loginMap.get(opener)
-          }>:\n${body.pull_request.title}\n${body.pull_request.html_url}`;
+          message = `🆕 New Pull Request opened by ${authorTag}:\n${body.pull_request.title}\n${body.pull_request.html_url}`;
         }
         if (body.action === "review_requested") {
           message =
-            `🔄 Pull Request updated by ${body.pull_request.user.login}:\n${body.pull_request.title}\n${body.pull_request.html_url}. Requested review from <@${
-              loginMap.get(reviewer)
-            }>`;
+            `🔄 Pull Request updated by ${authorTag}:\n${body.pull_request.title}\n${body.pull_request.html_url}. Requested review from ${requestedReviewerTag}`;
         }
         break;
 
       case "pull_request_review_request":
-        message = `👀 Review requested from <@${
-          loginMap.get(reviewer)
-        }> on PR:\n${body.pull_request.title}\n${body.pull_request.html_url}`;
+        message = `👀 Review requested from ${requestedReviewerTag} on PR:\n${body.pull_request.title}\n${body.pull_request.html_url}`;
         break;
 
       case "pull_request_review":
         message =
-          `${emoji} Review submitted by ${body.review.user.login} on PR:\n${body.pull_request.title}\n${body.review.html_url}`;
+          `${emoji} Review submitted by ${reviewer} on PR:\n${body.pull_request.title}\n${body.review.html_url}; cc ${authorTag}`;
         break;
     }
 
