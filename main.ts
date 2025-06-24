@@ -9,6 +9,7 @@ loginMap.set("karlmorisset", "U0751C4S43G");
 loginMap.set("EtienneCmb", "U08281SGPND");
 loginMap.set("Spoutnik97", "U051W1F01DL");
 loginMap.set("MorganPeju", "U070BL26K1P");
+loginMap.set("Picorba", "U092E1PJXN2");
 
 async function handleWebhook(request: Request) {
   try {
