@@ -9,6 +9,7 @@ loginMap.set("karlmorisset", "U0751C4S43G");
 loginMap.set("EtienneCmb", "U08281SGPND");
 loginMap.set("Spoutnik97", "U051W1F01DL");
 loginMap.set("MorganPeju", "U070BL26K1P");
+loginMap.set("LastDigitOfPi", "D08P8UWBQRJ");
 loginMap.set("Picorba", "U092E1PJXN2");
 
 async function handleWebhook(request: Request) {
@@ -35,14 +36,15 @@ async function handleWebhook(request: Request) {
     const requestReviewer: string = body?.requested_reviewer?.login;
     const author: string = body?.pull_request?.user?.login;
     const reviewer: string = body?.review?.user?.login;
-    
+
     const requestedReviewerTag = `<@${loginMap.get(requestReviewer)}>`;
     const authorTag = `<@${loginMap.get(author)}>`;
-    
+
     switch (event) {
       case "pull_request":
         if (body.action === "opened") {
-          message = `🆕 New Pull Request opened by ${authorTag}:\n${body.pull_request.title}\n${body.pull_request.html_url}`;
+          message =
+            `🆕 New Pull Request opened by ${author}:\n${body.pull_request.title}\n${body.pull_request.html_url}`;
         }
         if (body.action === "review_requested") {
           message =
@@ -51,7 +53,8 @@ async function handleWebhook(request: Request) {
         break;
 
       case "pull_request_review_request":
-        message = `👀 Review requested from ${requestedReviewerTag} on PR:\n${body.pull_request.title}\n${body.pull_request.html_url}`;
+        message =
+          `👀 Review requested from ${requestedReviewerTag} on PR:\n${body.pull_request.title}\n${body.pull_request.html_url}`;
         break;
 
       case "pull_request_review":
