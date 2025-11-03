@@ -5,12 +5,10 @@ const SLACK_TOKEN = Deno.env.get("SLACK_TOKEN") || "";
 const slack = new WebClient(SLACK_TOKEN);
 
 const loginMap = new Map<string, string>();
-loginMap.set("karlmorisset", "U0751C4S43G");
 loginMap.set("EtienneCmb", "U08281SGPND");
 loginMap.set("Spoutnik97", "U051W1F01DL");
 loginMap.set("MorganPeju", "U070BL26K1P");
-loginMap.set("LastDigitOfPi", "D08P8UWBQRJ");
-loginMap.set("Picorba", "U092E1PJXN2");
+loginMap.set("LastDigitOfPi", "U08P8UVAJSG");
 loginMap.set("fernan-x", "U09DWV77V4K");
 
 async function handleWebhook(request: Request) {
