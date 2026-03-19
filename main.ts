@@ -10,6 +10,7 @@ loginMap.set("Spoutnik97", "U051W1F01DL");
 loginMap.set("MorganPeju", "U070BL26K1P");
 loginMap.set("LastDigitOfPi", "U08P8UVAJSG");
 loginMap.set("fernan-x", "U09DWV77V4K");
+loginMap.set("RobotScribe", "U0ALLNNB03V");
 
 async function handleWebhook(request: Request) {
   try {
