@@ -1,0 +1,7 @@
+{
+  "port": 8000,
+  "slackChannel": "C0XXXXXXXXX",
+  "loginMap": {
+    "github-login": "SLACK_USER_ID"
+  }
+}

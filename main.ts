@@ -1,16 +1,40 @@
 import { WebClient } from "npm:@slack/web-api";
 
+interface Config {
+  port: number;
+  slackChannel: string;
+  loginMap: Record<string, string>;
+}
+
+async function loadConfig(): Promise<Config> {
+  const inline = Deno.env.get("CONFIG");
+  if (inline) {
+    return JSON.parse(inline);
+  }
+
+  const path = Deno.env.get("CONFIG_PATH") || "./config.json";
+  try {
+    return JSON.parse(await Deno.readTextFile(path));
+  } catch (error) {
+    throw new Error(
+      `Could not load config from "${path}" (or a CONFIG env var). ` +
+        `Copy config.example.json to config.json and fill it in. Original error: ${error}`,
+    );
+  }
+}
+
+const config = await loadConfig();
+
 const SLACK_TOKEN = Deno.env.get("SLACK_TOKEN") || "";
 
 const slack = new WebClient(SLACK_TOKEN);
 
-const loginMap = new Map<string, string>();
-loginMap.set("EtienneCmb", "U08281SGPND");
-loginMap.set("Spoutnik97", "U051W1F01DL");
-loginMap.set("MorganPeju", "U070BL26K1P");
-loginMap.set("LastDigitOfPi", "U08P8UVAJSG");
-loginMap.set("fernan-x", "U09DWV77V4K");
-loginMap.set("RobotScribe", "U0ALLNNB03V");
+const loginMap = new Map<string, string>(Object.entries(config.loginMap));
+
+function slackTag(githubLogin: string | undefined): string {
+  if (!githubLogin || !loginMap.has(githubLogin)) return githubLogin ?? "";
+  return `<@${loginMap.get(githubLogin)}>`;
+}
 
 async function handleWebhook(request: Request) {
   try {
@@ -37,8 +61,8 @@ async function handleWebhook(request: Request) {
     const author: string = body?.pull_request?.user?.login;
     const reviewer: string = body?.review?.user?.login;
 
-    const requestedReviewerTag = `<@${loginMap.get(requestReviewer)}>`;
-    const authorTag = `<@${loginMap.get(author)}>`;
+    const requestedReviewerTag = slackTag(requestReviewer);
+    const authorTag = slackTag(author);
 
     switch (event) {
       case "pull_request":
@@ -67,7 +91,7 @@ async function handleWebhook(request: Request) {
       console.log("Message => ", message);
       await slack.chat.postMessage({
         text: message,
-        channel: "C08HZDDHK6H", // code-reviews
+        channel: config.slackChannel,
       });
     }
 
@@ -78,7 +102,7 @@ async function handleWebhook(request: Request) {
   }
 }
 
-const port = 8000;
+const port = config.port ?? 8000;
 console.log(`Webhook server running on port ${port}`);
 
 Deno.serve({ port }, handleWebhook);

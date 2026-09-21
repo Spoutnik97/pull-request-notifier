@@ -24,16 +24,52 @@ deno task dev
 Or run it directly:
 
 ```bash
-deno run --allow-net --allow-env main.ts
+deno run --allow-net --allow-env --allow-read --allow-sys main.ts
 ```
 
-The server listens on port `8000` and exposes a single webhook endpoint at
-`/`.
+The server listens on the port set in your config (see below) and exposes a
+single webhook endpoint at `/`.
+
+## Configuration
+
+All non-secret settings (port, Slack channel, GitHub-login → Slack-user-ID
+mapping) live in a config file, not in the source.
+
+1. Copy the example config and fill it in:
+
+   ```bash
+   cp config.example.json config.json
+   ```
+
+   ```json
+   {
+     "port": 8000,
+     "slackChannel": "C0XXXXXXXXX",
+     "loginMap": {
+       "github-login": "SLACK_USER_ID"
+     }
+   }
+   ```
+
+   - `slackChannel`: the Slack channel ID to post PR notifications to. The
+     bot must be invited to this channel.
+   - `loginMap`: maps GitHub usernames to Slack user IDs, so authors/reviewers
+     get `@`-mentioned instead of just named.
+
+   `config.json` is gitignored — it's meant to hold your workspace-specific
+   values and is never committed.
+
+2. By default the server reads `./config.json`. To use a different path, set
+   `CONFIG_PATH`. To pass the config inline instead of via a file (useful on
+   platforms without filesystem access, like Deno Deploy), set the `CONFIG`
+   env var to the JSON string directly — it takes priority over
+   `CONFIG_PATH`.
 
 ## Configuring the Slack token
 
 The server reads its Slack bot token from the `SLACK_TOKEN` environment
-variable (see `main.ts`).
+variable (see `main.ts`) — this stays a secret/env var, not part of the
+config file.
 
 1. [Create a Slack app](https://api.slack.com/apps) (or reuse an existing one) with the `chat:write` scope,
    and install it to your workspace to get a bot token (starts with `xoxb-`).
@@ -47,12 +83,8 @@ variable (see `main.ts`).
    picked up:
 
    ```bash
-   deno run --allow-net --allow-env --env-file main.ts
+   deno run --allow-net --allow-env --allow-read --allow-sys --env-file main.ts
    ```
-
-The bot also needs to be invited to the target Slack channel. The channel ID
-is currently hardcoded in `main.ts` (`channel: "C08HZDDHK6H"`) — update it if
-you want to post elsewhere.
 
 ### GitHub webhook setup
 
@@ -69,8 +101,11 @@ the repo with zero build step.
 2. In the [Deno Deploy dashboard](https://dash.deno.com/), create a new
    project and link it to the GitHub repo.
 3. Set the entry point to `main.ts`.
-4. Under the project's **Settings → Environment Variables**, add
-   `SLACK_TOKEN` with your Slack bot token.
+4. Under the project's **Settings → Environment Variables**, add:
+   - `SLACK_TOKEN` — your Slack bot token.
+   - `CONFIG` — the contents of your `config.json` as a single-line JSON
+     string (since `config.json` is gitignored and won't be deployed with
+     the repo, e.g. `{"port":8000,"slackChannel":"C0XXXXXXXXX","loginMap":{"github-login":"SLACK_USER_ID"}}`).
 5. Deploy. Deno Deploy will give you a `https://<project>.deno.dev` URL —
    use that as the target for the GitHub webhook.
 
